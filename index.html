@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Happy Birthday 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      font-family: Arial, sans-serif;
+    }
+    .title {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 0 0 20px #ff69b4;
+    }
+  </style>
+</head>
+<body>
+  <div class="title">🎂 Happy Birthday Sayang 🎂</div>
+
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    // === SETUP SCENE ===
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // === LIGHT ===
+    const light = new THREE.PointLight(0xffffff, 2, 100);
+    light.position.set(10,10,10);
+    scene.add(light);
+
+    // === PLANET ULANG TAHUN ===
+    const textureLoader = new THREE.TextureLoader();
+    const planetTexture = textureLoader.load("https://i.ibb.co/7znz0w0/hearts.png"); // bola penuh love
+    const planetGeometry = new THREE.SphereGeometry(2, 64, 64);
+    const planetMaterial = new THREE.MeshStandardMaterial({ map: planetTexture });
+    const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+    scene.add(planet);
+
+    // === RING (cincin ulang tahun) ===
+    const ringGeometry = new THREE.TorusGeometry(3, 0.05, 16, 100);
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xff69b4 });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotation.x = Math.PI/2;
+    scene.add(ring);
+
+    // === TEKS UCAPAN ===
+    const loader = new THREE.FontLoader();
+    loader.load("https://threejs.org/examples/fonts/helvetiker_regular.typeface.json", function (font) {
+      const messages = [
+        "Happy Birthday 🎂",
+        "Panjang Umur 🎉",
+        "Sehat Selalu 💖",
+        "Aku Sayang Kamu ❤️",
+        "Semoga Bahagia ✨"
+      ];
+
+      messages.forEach((msg, i) => {
+        const textGeo = new THREE.TextGeometry(msg, {
+          font: font,
+          size: 0.3,
+          height: 0.05,
+        });
+        const textMat = new THREE.MeshBasicMaterial({ color: 0xffc0cb });
+        const textMesh = new THREE.Mesh(textGeo, textMat);
+
+        const angle = (i / messages.length) * Math.PI * 2;
+        const radius = 5;
+        textMesh.position.set(Math.cos(angle)*radius, (i-2)*0.5, Math.sin(angle)*radius);
+        textMesh.lookAt(0,0,0);
+
+        scene.add(textMesh);
+      });
+    });
+
+    // === PARTICLE BINTANG ===
+    const starGeometry = new THREE.BufferGeometry();
+    const starCount = 2000;
+    const positions = [];
+    for (let i=0; i<starCount; i++) {
+      positions.push((Math.random()-0.5)*100);
+      positions.push((Math.random()-0.5)*100);
+      positions.push((Math.random()-0.5)*100);
+    }
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const starMaterial = new THREE.PointsMaterial({color:0xffffff, size:0.3});
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
+
+    // === CAMERA & CONTROLS ===
+    camera.position.z = 8;
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // === ANIMATE ===
+    function animate() {
+      requestAnimationFrame(animate);
+
+      planet.rotation.y += 0.01;
+      ring.rotation.z += 0.005;
+      stars.rotation.y += 0.0005;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
